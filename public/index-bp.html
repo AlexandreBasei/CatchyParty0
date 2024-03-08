@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Chat</title>
+</head>
+
+<body>
+  <div id="welcome-message"></div>
+  <div id="waiting-message">En attente de joueurs...</div>
+  <ul id="messages"></ul>
+  <form id="form" action="">
+    <input id="m" autocomplete="off" /><button>Send</button>
+  </form>
+  <div>
+    <ul id="user-list"></ul>
+  </div>
+  <label>
+    <input type="checkbox" id="toggleCheckbox" />
+    Toggle Checkbox
+  </label>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const form = document.querySelector('form');
+    const input = document.querySelector('#m');
+    const messages = document.querySelector('#messages');
+    const toggleCheckbox = document.getElementById('toggleCheckbox');
+    const welcomeMessage = document.getElementById('welcome-message');
+    const waitingMessage = document.getElementById('waiting-message');
+    const userList = document.getElementById('user-list');
+
+    let currentUserNumber;
+    let userName;
+
+    socket.on('user number', (number) => {
+      currentUserNumber = number;
+    });
+
+    socket.on('start game', () => {
+      welcomeMessage.textContent = `Bienvenue dans le chat ! Membres connectés : 2`;
+      waitingMessage.style.display = 'none'; // Masquer le message d'attente
+      form.style.display = 'block'; // Afficher le formulaire de chat
+    });
+
+    // Gérer l'événement 'waiting for players' côté client
+    socket.on('waiting for players', (connectedPlayers) => {
+      if (connectedPlayers === 2) {
+        waitingMessage.style.display = 'none'; // Masquer le message d'attente lorsque 2 joueurs sont connectés
+        form.style.display = 'block'; // Afficher le formulaire de chat
+      } else {
+        waitingMessage.textContent = `En attente de ${2 - connectedPlayers} joueur(s)...`;
+        waitingMessage.style.display = 'block'; // Afficher le message d'attente
+        form.style.display = 'none'; // Masquer le formulaire de chat
+      }
+    });
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (input.value) {
+        socket.emit('chat message', { msg: input.value, userName });
+        input.value = '';
+      }
+    });
+
+    socket.on('chat message', function (msg) {
+      const li = document.createElement('li');
+      li.textContent = msg;
+      messages.appendChild(li);
+    });
+
+    toggleCheckbox.addEventListener('change', function () {
+      const isChecked = toggleCheckbox.checked;
+      socket.emit('checkbox state', isChecked);
+    });
+
+    socket.on('checkbox state', function (isChecked) {
+      toggleCheckbox.checked = isChecked;
+    });
+
+    // Gérer la réponse aux messages stockés côté client
+    socket.on('stored messages', function (storedMessages) {
+      // Mettre à jour l'interface utilisateur avec les messages stockés
+      storedMessages.forEach(msg => {
+        const li = document.createElement('li');
+        li.textContent = msg;
+        messages.appendChild(li);
+      });
+    });
+
+    // Mettre à jour la liste des utilisateurs connectés
+    socket.on('user connected', function ({ users, connectedUsers }) {
+      updateUserList(users);
+      welcomeMessage.textContent = `Bienvenue dans le chat ! Membres connectés : ${connectedUsers}`;
+    });
+
+    // Mettre à jour la liste des utilisateurs lorsqu'un utilisateur gagne
+    socket.on('user won', function ({ userNumber, userName }) {
+      const winnerMessage = `${userName} a gagné !`;
+      const li = document.createElement('li');
+      li.textContent = winnerMessage;
+      messages.appendChild(li);
+      updateUserList(users);
+    });
+
+    // Mettre à jour la liste des utilisateurs
+    socket.on('user list', function (updatedUsers) {
+      updateUserList(updatedUsers);
+    });
+
+    // Fonction pour mettre à jour la liste des utilisateurs dans la page HTML
+    function updateUserList(users) {
+      userList.innerHTML = '<h2>Connectés</h2>';
+      for (const userNumber in users) {
+        const { name, score } = users[userNumber];
+        const li = document.createElement('li');
+        li.textContent = `${name}: Score - ${score}`;
+        userList.appendChild(li);
+      }
+    }
+
+    // Demander le nom d'utilisateur lors de la connexion
+    userName = prompt('Veuillez entrer votre nom d\'utilisateur :');
+    socket.emit('set username', userName);
+  </script>
+
+</body>
+<style>
+  html {
+    background-color: mistyrose;
+  }
+
+  #waiting-message {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 20px 0;
+  }
+</style>
+
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenue sur LyricS</title>
+    <!-- <link rel="stylesheet" href="/css/main.css"> -->
+    <link rel="stylesheet" href="/css/home.css">
+</head>
+
+<body>
+    <main id="homepage">
+        <div>
+            <h1>LyricS</h1>
+            <a href="/auth/spotify" class="original-button">Se lancer</a>
+        </div>
+        <div id="sub-button">
+            <p>Créez. Consultez. Découvrez. <br/>Tout ça de façon pratique.</p>
+        </div>
+    </main>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.min.js"></script>
+<script>
+  const socket = io();
+
+  const chatMessages = document.getElementById('chatMessages');
+  const messageInput = document.getElementById('messageInput');
+  const sendButton = document.getElementById('sendButton');
+
+  sendButton.addEventListener('click', () => {
+    const message = messageInput.value;
+    socket.emit('chatMessage', message);
+    messageInput.value = '';
+  });
+
+  socket.on('chatMessage', (message) => {
+    const li = document.createElement('li');
+    li.textContent = message;
+    chatMessages.appendChild(li);
+  });
+</script>
+</html>

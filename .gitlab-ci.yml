@@ -1,0 +1,14 @@
+stages:
+  - deploy
+
+deploy-railway:
+  stage: deploy
+  image: ubuntu
+  only:
+    - pushes
+    - main
+  script:
+    - apt-get update && apt-get install -y curl
+    - curl -fsSL https://railway.app/install.sh | sh
+    # - railway login --browserless
+    - railway up --service=$RAILWAY_SERVICE_NAME -d

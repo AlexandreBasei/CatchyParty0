@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Tracks</title>
+    <!-- <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/home.css"> -->
+    <link rel="stylesheet" href="/css/h.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+</head>
+
+<body>
+
+    <main>
+        <h3 id="name_bt"><span>Blindtest </span> <span style="color: lightblue;">
+                <%= artistName %>
+            </span></h3>
+
+        <div class="main-div-blindtest">
+
+            <div class="range_blindtest">
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.2" onchange="updateVolume()">
+            </div>
+
+            <h4 id="index"></h4>
+            <div class="img-ctdn">
+                <p id="countdown"></p>
+                <img id="disc_on_cover" src="./images/animLogo.gif" alt="disc">
+                <img id="cover" src="./images/black.jpg" alt="Album Cover"
+                    style="width: 200px; height: 200px; border-radius: 10px;">
+            </div>
+            <div class="answer-visible">
+                <h4 id="answer-name" style="width: 50vw;
+                    text-align: center;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;">---</h4>
+            </div>
+            <div class="answ-div">
+                <input type="text" id="answer" placeholder="Your answer" oninput="handleInput(enableSuggestions)">
+                <div id="suggestions"></div>
+            </div>
+        </div>
+
+        <div id="params-bt" style="width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;">
+
+            <label id="song-count-label" for="song-count">Nombre de chansons (1 à X): </label>
+            <input type="range" id="song-count" name="songCount" min="1" max="" value="5">
+            <br>
+
+            <!-- Choisir le temps pour répondre -->
+            <label for="time-limit">Temps pour répondre (10 à 30 secondes): </label>
+            <input type="range" id="time-limit" name="timeLimit" min="10" max="30" value="30">
+            <br>
+
+            <!-- Option pour les suggestions -->
+            <label for="suggestions">Afficher les suggestions? </label>
+            <input type="checkbox" id="suggestionss" name="enableSuggestions" checked>
+            <br>
+            <h5 style="font-size: 10px;
+                text-align: center;
+                padding: 0 10vw 50px;">IMPORTANT ! TOUTES LES MUSIQUES NE SONT PAS DISPONIBLES À CAUSE DE SPOTIFY QUI
+                N'AUTORISE PAS TOUS LES EXTRAITS PAR RAPPORT AUX DROITS D'AUTEURS ! </h5>
+
+        </div>
+
+        <button id="btn-start" class="btn-blindtest" onclick="startBlindTest()">Commencer</button>
+
+        <button id="btn-restart" class="btn-blindtest" onclick="restartBlindTest()">Rejouer</button>
+
+        <div>
+            <div id="result"></div>
+        </div>
+
+        <div>
+            <p id="points"></p> <!-- Ajout de la div pour afficher les points -->
+        </div>
+    </main>
+    <!-- Incluez la bibliothèque Howler.js -->
+    <script src="https://unpkg.com/howler@2.2.3/dist/howler.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+
+    <script>
+
+        const socket = io();
+        const tracks = <%- JSON.stringify(tracks) %>;
+
+        console.log(tracks);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const type = urlParams.get('type');
+        const artistId = urlParams.get('id');
+        const artistName = urlParams.get('name');
+
+        // Utilisez la valeur de 'type' dans votre script
+        console.log('Type:', type);
+
+        let tracksWithPreview;
+
+        if (type == "artist") {
+            if (artistId) {
+                tracksWithPreview = tracks.filter(track => track.preview_url && track.artists.some(artist => artist.id === artistId));
+                console.log(tracksWithPreview);
+            } else {
+                // Gérer le cas où l'ID de l'artiste n'est pas présent dans l'URL
+                console.error('ID de l\'artiste manquant dans l\'URL');
+            }
+        }
+
+        else if (type == "album") {
+            tracksWithPreview = tracks.filter(track => track.preview_url);
+            console.log(tracksWithPreview);
+        }
+
+        else {
+            tracksWithPreview = tracks.filter(track => track.track.preview_url);
+        }
+
+        let shuffledTracks = shuffleArray([...tracksWithPreview]);
+
+        let currentIndex = 0;
+        let correctAnswers = 0;
+        let totalPoints = 0; // Ajout du compteur de points
+        let volume_range = 0.2; // Valeur initiale du volume
+        let img_cover_current = 0;
+
+        let answers = [];
+
+        let songCountRange = document.getElementById('song-count');
+        let timeLimitRange = document.getElementById('time-limit');
+
+        let songCount = 0;
+        let timeLimit = 0;
+        let enableSuggestions = 0;
+
+        // Afficher le nombre de musiques avec preview_url
+        console.log(`Nombre de musiques avec preview_url : ${tracksWithPreview.length}`);
+
+        document.addEventListener("DOMContentLoaded", function () {
+            songCountRange.max = tracksWithPreview.length;
+            console.log(songCountRange);
+            document.getElementById('song-count-label').textContent = `Nombre de chansons (1 à ${tracksWithPreview.length}):`;
+            document.getElementById('volumeSlider').addEventListener('change', updateVolume);
+        });
+
+        socket.on('updateGameState', (data) => {
+            // Update the client-side game state based on the received data
+            updateClientGameState(data);
+        });
+
+        socket.on('updateClientState', (response) => {
+            console.log('Server response to all clients:', response);
+
+            // Process the response as needed
+        });
+
+        function updateClientGameState(data) {
+            // Update the client-side game state using the received data
+            // You may need to adapt this based on your specific game logic
+            console.log('Received game state update:', data);
+
+            const { currentIndex, correctAnswers, totalPoints, answers, numPlayers } = data;
+
+            // Example: Update UI elements with the new game state
+            document.getElementById('index').innerText = `${currentIndex + 1} / ${songCount}`;
+            document.getElementById('result').innerText = `Correct Answers: ${correctAnswers} / Total Points: ${totalPoints}`;
+
+            // Additional logic to handle answers array, if needed
+            // ...
+
+            // Check if the number of players is greater than 2 before displaying the start button
+            if (numPlayers > 2) {
+                document.getElementById('btn-start').style.display = 'block';
+            } else {
+                document.getElementById('btn-start').style.display = 'none';
+            }
+
+            // Play the next track and reset UI when the game state is updated
+            playNextTrack(songCount, timeLimit, enableSuggestions);
+            resetUI();
+        }
+
+        function test() {
+            songCount = parseInt(songCountRange.value);
+            timeLimit = parseInt(timeLimitRange.value);
+            console.log(timeLimit, songCount);
+        }
+
+        function startBlindTest() {
+            songCount = parseInt(songCountRange.value);
+            timeLimit = parseInt(timeLimitRange.value);
+            enableSuggestions = document.getElementById('suggestionss').checked;
+
+            socket.emit('startBlindTest', { songCount, timeLimit, enableSuggestions });
+
+            // Vous pouvez maintenant utiliser ces valeurs pour commencer le blindtest
+            console.log('Nombre de chansons:', songCount);
+            console.log('Temps limite:', timeLimit);
+            console.log('Afficher les suggestions?', enableSuggestions);
+
+            document.getElementById('btn-restart').style.display = 'none';
+            document.getElementById('btn-start').style.display = 'none';
+            document.getElementById('params-bt').style.display = 'none';
+            document.querySelector(".main-div-blindtest").style.display = 'block';
+            answers = [];
+            // playNextTrack(songCount, timeLimit, enableSuggestions);
+        }
+
+        // // Fonction pour récupérer la couverture d'album à partir de l'ID de la piste
+        // // Fonction asynchrone pour obtenir l'URL de la couverture de l'album à partir de l'ID de la piste
+        // async function getAlbumCover(trackId) {
+        //     try {
+        //         // Récupérer le token d'accès
+        //         const accessToken = "<%= accessToken %>";  // Assurez-vous de remplacer "VotreTokenD'Accès" par votre véritable token d'accès
+
+        //         // Construire l'URL de l'API Spotify pour obtenir les détails de la piste
+        //         const apiUrl = `https://api.spotify.com/v1/tracks/${trackId}`;
+
+        //         // Effectuer la requête à l'API Spotify
+        //         const response = await fetch(apiUrl, {
+        //             headers: {
+        //                 Authorization: `Bearer ${accessToken}`,
+        //             },
+        //         });
+
+        //         // Vérifier si la requête a réussi (statut 200 OK)
+        //         if (response.ok) {
+        //             // Extraire les données JSON de la réponse
+        //             const trackData = await response.json();
+
+        //             // Obtenez l'URL de l'image de l'album
+        //             const albumCoverUrl = trackData.album.images[0].url;
+
+        //             img_cover_current = albumCoverUrl;
+        //             document.getElementById('cover').src = img_cover_current;
+
+        //             console.log('URL de la couverture de l\'album:', albumCoverUrl);
+        //         } else {
+        //             // Gérer les erreurs de requête
+        //             console.error('Erreur lors de la récupération de la couverture de l\'album:', response.statusText);
+        //         }
+        //     } catch (error) {
+        //         console.error('Erreur lors de la récupération de la couverture de l\'album:', error);
+        //     }
+        // }
+
+        // function playNextTrack(songCount, timeLimit, enableSuggestions) {
+        //     if (currentIndex < songCount) {
+
+        //         // Remettre à zéro l'interface utilisateur
+        //         Howler.volume(volume_range);
+        //         resetUI();
+        //         document.getElementById('index').innerText = `${currentIndex + 1} / ${songCount}`;
+        //         document.getElementById('answer').style.border = 'solid 3px white';
+
+        //         const currentTrack = shuffledTracks[currentIndex];
+        //         let previewUrl;
+        //         let trackName;
+
+        //         if (type === "artist" || type === "album") {
+        //             previewUrl = currentTrack.preview_url;
+        //             trackName = currentTrack.name;
+        //         } else {
+        //             previewUrl = currentTrack.track.preview_url;
+        //             trackName = currentTrack.track.name;
+        //         }
+
+        //         const sound = new Howl({
+        //             src: [previewUrl],
+        //             format: ['mp3'],
+        //             autoplay: false
+        //         });
+
+        //         let countdown = timeLimit;
+
+        //         // Démarrer la lecture audio
+        //         sound.play();
+
+        //         // Mettre à jour le compteur toutes les secondes
+        //         const countdownInterval = setInterval(() => {
+        //             document.getElementById('countdown').innerText = countdown;
+
+        //             if (countdown === 0) {
+        //                 document.getElementById('countdown').innerText = '';
+        //                 document.getElementById('answer-name').innerText = trackName;
+        //                 document.getElementById("disc_on_cover").style.display = 'none';
+
+        //                 // Afficher la cover après 30 secondes
+        //                 if (type === "artist" || type === "album") {
+        //                     getAlbumCover(currentTrack.id);
+        //                     console.log(`img-src : ${img_cover_current}`);
+
+        //                 } else {
+        //                     document.getElementById('cover').src = currentTrack.track.album.images[0].url;
+        //                 }
+
+        //                 document.getElementById('answer').disabled = true;
+
+        //                 submitAnswer(sound, countdownInterval);
+        //             }
+
+        //             countdown--;
+        //         }, 1000); // Mettre à jour toutes les secondes
+        //     } else {
+        //         document.querySelector(".main-div-blindtest").style.display = 'none';
+        //         showAnswers(songCount);
+        //         document.getElementById('btn-restart').style.display = 'block';
+        //         document.getElementById('btn-start').style.display = 'none';
+
+        //         // updateServerGameState();
+        //     }
+        // }
+
+        // function submitAnswer(sound, countdownInterval) {
+        //     const userAnswer = document.getElementById('answer').value.toLowerCase();
+        //     const currentTrack = shuffledTracks[currentIndex];
+        //     const trackName = (type === "artist" || type === "album") ? currentTrack.name : currentTrack.track.name;
+
+        //     // Emit the submitAnswer event to the server
+        //     socket.emit('submitAnswer', { userAnswer, trackName });
+
+        //     const isCorrect = userAnswer === trackName.toLowerCase();
+        //     answers.push([trackName, isCorrect]);
+
+        //     document.getElementById('answer').disabled = true;
+
+        //     if (isCorrect) {
+        //         document.getElementById('answer').style.border = 'solid 3px green';
+        //         correctAnswers++;
+        //         totalPoints++;
+        //     } else {
+        //         document.getElementById('answer').style.border = 'solid 3px red';
+        //     }
+
+        //     // Clear the countdown interval
+        //     sound.stop();
+        //     clearInterval(countdownInterval);
+
+        //     // Continue with the existing logic
+        //     setTimeout(() => {
+        //         currentIndex++;
+
+        //         // updateServerGameState();
+
+        //         playNextTrack(songCount, timeLimit, enableSuggestions);
+        //     }, 8000);
+        // }
+
+        // Fonction pour mélanger un tableau (algorithme de Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // // Fonction pour réinitialiser l'interface utilisateur
+        // function resetUI() {
+        //     document.getElementById('cover').src = "./images/black.jpg";
+        //     document.getElementById('answer').disabled = false;
+        //     document.getElementById('result').innerText = '';
+        //     document.getElementById('answer').value = '';
+        //     document.getElementById('index').innerText = '';
+        //     document.getElementById('suggestions').innerHTML = '';
+        //     document.getElementById("disc_on_cover").style.display = 'block';
+        //     document.getElementById('answer-name').innerText = '---';
+        // }
+
+        // // Ajoutez cela à votre script JavaScript
+        // function handleInput(enableSuggestions) {
+        //     const inputElement = document.getElementById('answer');
+        //     const suggestionsDiv = document.getElementById('suggestions');
+        //     const inputValue = inputElement.value.toLowerCase();
+
+        //     // Effacer les anciennes suggestions
+        //     suggestionsDiv.innerHTML = '';
+
+        //     if (enableSuggestions == true) {// Vérifier si l'input n'est pas vide
+        //         if (inputValue.trim() !== '') {
+        //             // Filtrer les cinq premières pistes dont le nom commence par la saisie de l'utilisateur
+        //             let matchingTracks;
+
+        //             if (type === "artist" || type === "album") {
+        //                 matchingTracks = tracks.filter(track => track.name.toLowerCase().startsWith(inputValue)).slice(0, 5);
+        //             } else {
+        //                 matchingTracks = tracks.filter(track => track.track.name.toLowerCase().startsWith(inputValue)).slice(0, 5);
+        //             }
+
+        //             // Remplir le div avec les nouvelles suggestions
+        //             matchingTracks.forEach(track => {
+        //                 let suggestion;
+
+        //                 if (type === "artist" || type === "album") {
+        //                     suggestion = document.createElement('div');
+        //                     suggestion.innerText = track.name;
+        //                     suggestion.classList.add('is-a-suggestion');
+        //                     suggestion.onclick = () => insertSelectedValue(track.name);
+        //                     suggestionsDiv.appendChild(suggestion);
+        //                 } else {
+        //                     suggestion = document.createElement('div');
+        //                     suggestion.innerText = track.track.name;
+        //                     suggestion.classList.add('is-a-suggestion');
+        //                     suggestion.onclick = () => insertSelectedValue(track.track.name);
+        //                     suggestionsDiv.appendChild(suggestion);
+        //                 }
+
+
+        //             });
+        //         }
+        //     }
+        // }
+
+        // // Ajoutez cela à votre script JavaScript
+        // function insertSelectedValue(value) {
+        //     const inputElement = document.getElementById('answer');
+        //     inputElement.value = value;
+        // }
+
+        // function restartBlindTest() {
+        //     location.reload();
+        // }
+
+
+        function updateVolume() {
+            const volumeSlider = document.getElementById('volumeSlider');
+            volume_range = parseFloat(volumeSlider.value);
+            Howler.volume(volume_range);
+            console.log(Howler.volume(volume_range));
+        }
+
+        // function showAnswers(songCount) {
+        // Créer une liste (<ul>) pour afficher les réponses
+        //     const answersList = document.createElement('ul');
+        //     answersList.classList.add('ul-result');
+        //     answersList.style.borderRadius = '10px';
+        //     answersList.style.border = '3px solid lightblue';
+        //     const pseudo_after = document.createElement('p');
+        //     pseudo_after.classList.add('pseudo_after_result');
+        //     pseudo_after.innerText = `${correctAnswers} / ${songCount}`;
+
+        //     // Remplir la liste avec les réponses
+        //     answers.forEach((answer, index) => {
+        //         const listItem = document.createElement('li');
+        //         listItem.textContent = `${answer[0]}`;
+        //         listItem.style.backgroundColor = answer[1] ? 'lightgreen' : 'lightpink';
+        //         answersList.appendChild(listItem);
+        //     });
+        //     const nb_answers = document.createElement('h4');
+
+        //     console.log(correctAnswers, songCount);
+
+        //     if (correctAnswers == songCount) {
+        //         nb_answers.innerText = `T'es le GOAT :)`;
+        //     }
+
+        //     else if (correctAnswers >= songCount / 2) {
+        //         nb_answers.innerText = `Pas mal, continue :D`;
+        //     }
+
+        //     else {
+        //         nb_answers.innerText = `Retente ta chance D:`;
+        //     }
+
+        //     document.getElementById('result').appendChild(pseudo_after);
+        //     document.getElementById('result').appendChild(nb_answers);
+        //     document.getElementById('result').appendChild(answersList);
+        // }
+
+    </script>
+
+    <!-- HTML pour l'affichage -->
+
+    <style>
+        main {
+            padding: 5rem 0px 5rem 0px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 5vh 0px 5vh 0px;
+            justify-content: center;
+        }
+
+        #countdown {
+            font-size: 60px;
+            position: absolute;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            z-index: 99;
+            text-shadow: 0px 0px 8px #000000;
+        }
+
+        #disc_on_cover {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .main-div-blindtest {
+            margin: 0px 0px 10vh 0px;
+            display: none;
+        }
+
+        .img-ctdn {
+            display: flex;
+            justify-content: center;
+            height: 30vh;
+            align-items: center;
+        }
+
+        #answer {
+            text-align: center;
+            border: solid white 3px;
+            border-radius: 1em;
+            flex: 1;
+            display: block;
+            margin: 0 auto;
+            min-width: 0;
+            height: 15vw;
+            width: 75vw;
+            max-width: 600px;
+            background: #ffffff80;
+            outline: none;
+            color: #000;
+            font-size: 1rem;
+        }
+
+        .btn-blindtest {
+            text-align: center;
+            border: none;
+            border-radius: 1em;
+            flex: 1;
+            display: block;
+            margin: 0 auto;
+            min-width: 0;
+            height: 7vh;
+            max-height: 7vh;
+            width: 50vw;
+            max-width: 600px;
+            background: white;
+            outline: none;
+            color: #000;
+            font-size: 1rem;
+            box-shadow: rgba(100, 100, 111, 0.35) 0px 0px 29px 0px;
+        }
+
+        #btn-restart {
+            display: none;
+        }
+
+        #suggestions {
+            display: flex;
+            width: 70vw;
+            position: absolute;
+            /* justify-content: center; */
+            flex-direction: column;
+            /* align-items: center; */
+            padding: 0vh 5vw 0vh 5vw;
+            background: ghostwhite;
+            margin: 0 auto;
+            border-bottom-left-radius: 19px;
+            border-bottom-right-radius: 19px;
+            left: 15vw;
+        }
+
+        .is-a-suggestion {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /*********** Baseline, reset styles ***********/
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+            width: 13rem;
+        }
+
+        /* Removes default focus */
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        /******** Chrome, Safari, Opera and Edge Chromium styles ********/
+        /* slider track */
+        input[type="range"]::-webkit-slider-runnable-track {
+            background-color: #b1ddec;
+            border-radius: 0.5rem;
+            height: 0.5rem;
+        }
+
+        /* slider thumb */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            /* Override default look */
+            appearance: none;
+            margin-top: -4px;
+            /* Centers thumb on the track */
+            background-color: #808080;
+            border-radius: 0.5rem;
+            height: 1rem;
+            width: 1rem;
+        }
+
+        input[type="range"]:focus::-webkit-slider-thumb {
+            outline: 3px solid #808080;
+            outline-offset: 0.125rem;
+        }
+
+        /*********** Firefox styles ***********/
+        /* slider track */
+        input[type="range"]::-moz-range-track {
+            background-color: #b1ddec;
+            border-radius: 0.5rem;
+            height: 0.5rem;
+        }
+
+        /* slider thumb */
+        input[type="range"]::-moz-range-thumb {
+            background-color: #808080;
+            border: none;
+            /*Removes extra border that FF applies*/
+            border-radius: 0.5rem;
+            height: 1rem;
+            width: 1rem;
+        }
+
+        input[type="range"]:focus::-moz-range-thumb {
+            outline: 3px solid #808080;
+            outline-offset: 0.125rem;
+        }
+
+        .range_blindtest {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .range_blindtest span {
+            position: absolute;
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        #index,
+        #name_bt {
+            display: flex;
+            justify-content: center;
+            /* margin-top: 5vh; */
+        }
+
+        #result {
+            margin: 8vh 0vw 0vh 0vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #result ul {
+            border-radius: 10px;
+            border: 3px solid lightblue;
+            width: 75vw;
+            padding: 10px;
+            position: relative;
+        }
+
+        #result li {
+            background-color: lightgreen;
+            border-radius: 10px;
+            padding: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pseudo_after_result {
+            right: -10vw;
+            top: -9vh;
+            /* width: 100%; */
+            /* height: 100%; */
+            background-color: mistyrose;
+            /* transform: rotate(45deg); */
+            font-family: Poppins;
+            font-size: 4rem;
+            display: flex;
+            justify-content: center;
+            padding: 0vh 4vw 0vh 4vw;
+            border: outset 12px;
+            border-radius: 13px;
+            font-weight: bold;
+            margin: 0vh 0vw 5vh 0vw;
+            /* text-shadow: 0px 0px 8px #000000; */
+        }
+
+        .answer-visible {
+            background: aliceblue;
+            width: 70vw;
+            border: 3px solid lightgreen;
+            border-radius: 40px;
+            display: flex;
+            height: 50px;
+            justify-content: center;
+            margin: 30px auto;
+            align-items: center;
+        }
+
+        #index {
+            margin-top: 5vh;
+        }
+
+        #name_bt {
+            margin-bottom: 5vh;
+        }
+
+        #suggestionss {
+            opacity: 100%;
+            pointer-events: all;
+        }
+
+        html {
+            background-color: lavender;
+        }
+    </style>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+</body>
+
+</html>

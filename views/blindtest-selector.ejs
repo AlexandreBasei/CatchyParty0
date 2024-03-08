@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search</title>
+    <!-- <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/home.css"> -->
+    <link rel="stylesheet" href="/css/h.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+</head>
+
+<body>
+
+
+        <!-- <main>
+        <h4><a href="/blindtest?type=playlist&id=1L4rTXx7MNAuwvCzihm3ZH">Blindtest Playlist</a></h4>
+    <h4><a href="/blindtest?type=artist&id=41XEyClazvR6Ao77iD8qex">Blindtest Artist</a></h4>
+    <h4><a href="/blindtest?type=album&id=5ncfRnCt3xSTJMnoAgplCI">Blindtest Album</a></h4>
+    </main> -->
+        <div id="TDetails">
+
+            <!-- <h1>Détails de la musique</h1> -->
+            <!-- Affichez les détails de la musique ici -->
+
+            <div class="track-image-details">
+
+                <div class="firstelement-blindtest-manager">
+                    <h2 class="h2-title" style="color: black;">
+                        BLINDTEST
+                    </h2>
+                    <h4 style="width: 75vw;text-align: center; color: black;"> Amuse toi à tester tes connaissances sur
+                        tes albums, artistes ou playlists préférées !</h4>
+                </div>
+                <div class="form__group field" style="z-index: 1;">
+                    <input type="input" class="form__field" placeholder="Rechercher..." name="name" id='search-input' />
+                    <label for="name" class="form__label" style="z-index: -1;">Rechercher...</label>
+                </div>
+                <div class="containerz">
+                    <div class="content">
+                        <a  href="#results-artists-container">
+                      <svg id="more-arrows">
+                        <polygon class="arrow-top" points="37.6,27.9 1.8,1.3 3.3,0 37.6,25.3 71.9,0 73.7,1.3 "/>
+                        <polygon class="arrow-middle" points="37.6,45.8 0.8,18.7 4.4,16.4 37.6,41.2 71.2,16.4 74.5,18.7 "/>
+                        <polygon class="arrow-bottom" points="37.6,64 0,36.1 5.1,32.8 37.6,56.8 70.4,32.8 75.5,36.1 "/>
+                      </svg>
+                    </a>
+                    </div>
+                  </div>
+            </div>
+            <style>
+                body {
+                    background-color: mistyrose;
+                }
+
+                #TDetails {
+                    position: relative;
+                    /* width: 500px;
+              height: 300px; */
+                    background: no-repeat center center;
+                    background-image: url('');
+                    background-size: cover;
+                    background-attachment: fixed;
+                    padding: 0;
+                }
+
+                /* #TDetails::after {
+                    content: "";
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    backdrop-filter: blur(10px);
+                    pointer-events: none;
+                    top: 0;
+                } */
+
+                .button-container,
+                .tracks-container,
+                .recommended-artists,
+                h2 {
+                    z-index: 10;
+                    position: relative;
+                }
+
+                .track-image-details {
+                    background-color: mistyrose;
+                    justify-content: space-evenly;
+                }
+
+                .track-image-details .firstelement-blindtest-manager h2 {
+                    color: whitesmoke;
+                    z-index: 1;
+                    font-size: 2rem;
+                }
+
+                .track-image-details .firstelement-blindtest-manager h4 {
+                    color: whitesmoke;
+                    text-transform: uppercase;
+                    z-index: 1;
+                    font-size: 0.75rem;
+                }
+
+                .firstelement-blindtest-manager {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    height: 15vh;
+                    justify-content: space-between;
+                }
+
+                .h2-title {
+                    color: white;
+                }
+
+                .artist-home {
+                    background: rgba(222, 245, 229);
+                }
+
+                .artist {
+                    background: rgb(249 86 86);
+                }
+            </style>
+
+
+        </div>
+
+        <main>
+
+            <div>
+                <div id="results-artists-container" class="artists-container"></div>
+
+                <div id="results-albums-container" class="artists-container"></div>
+
+                <div id="results-playlists-container" class="artists-container"></div>
+            </div>
+        </main>
+
+        <style>
+            main {
+                padding: 5rem 0px 5rem 0px;
+            }
+
+            .titleSection {
+                margin-bottom: 1vh;
+            }
+        </style>
+
+        <script>
+            // Écoutez les changements dans le champ de recherche
+            document.querySelector('#search-input').addEventListener('input', function (event) {
+                const query = event.target.value;
+
+                // Vérifiez si la requête est assez longue pour valider la recherche
+                if (query.length >= 3) {
+                    searchSpotify(query);
+                }
+            });
+
+            // Fonction pour effectuer la recherche Spotify
+            function searchSpotify(query) {
+                const apiUrl = `https://api.spotify.com/v1/search?q=${query}&type=artist,album,playlist&limit=10&market=FR`;
+
+                fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer <%= accessToken %>`
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        // Traitez les données de réponse et mettez à jour l'interface utilisateur
+                        displaySearchResults(data);
+                    })
+                    .catch(error => console.error('Erreur lors de la recherche Spotify:', error));
+            }
+
+            // Fonction pour afficher les résultats de la recherche
+            function displaySearchResults(data) {
+                const playlistsContainer = document.querySelector('#results-playlists-container');
+                const artistsContainer = document.querySelector('#results-artists-container');
+                const albumsContainer = document.querySelector('#results-albums-container');
+
+                playlistsContainer.innerHTML = '';
+                artistsContainer.innerHTML = '';
+                albumsContainer.innerHTML = '';
+
+                const titleSectionPlaylist = document.createElement('h4');
+                const titleSectionArtist = document.createElement('h4');
+                const titleSectionAlbum = document.createElement('h4');
+
+                // Créez un nouvel élément span
+                var spanElement = document.createElement('span');
+                spanElement.style.color = "#BCEAD5";
+                // Définissez le contenu du span
+                spanElement.textContent = 'Playlists...';
+                // Ajoutez le span à l'élément titleSectionArtist
+                titleSectionPlaylist.appendChild(document.createTextNode('Résultats pour ')); // Ajoutez le texte "Résultats pour "
+                titleSectionPlaylist.appendChild(spanElement);
+                
+                // Créez un nouvel élément span
+                var spanElement = document.createElement('span');
+                spanElement.style.color = "#BCEAD5";
+                // Définissez le contenu du span
+                spanElement.textContent = 'Artistes...';
+                // Ajoutez le span à l'élément titleSectionArtist
+                titleSectionArtist.appendChild(document.createTextNode('Résultats pour ')); // Ajoutez le texte "Résultats pour "
+                titleSectionArtist.appendChild(spanElement);
+
+                // Créez un nouvel élément span
+                var spanElement = document.createElement('span');
+                spanElement.style.color = "#BCEAD5";
+                // Définissez le contenu du span
+                spanElement.textContent = 'Albums...';
+                // Ajoutez le span à l'élément titleSectionArtist
+                titleSectionAlbum.appendChild(document.createTextNode('Résultats pour ')); // Ajoutez le texte "Résultats pour "
+                titleSectionAlbum.appendChild(spanElement);
+                
+                playlistsContainer.appendChild(titleSectionPlaylist);
+                artistsContainer.appendChild(titleSectionArtist);
+                albumsContainer.appendChild(titleSectionAlbum);
+
+                titleSectionPlaylist.classList.add('titleSection');
+                titleSectionArtist.classList.add('titleSection');
+                titleSectionAlbum.classList.add('titleSection');
+                const playlists = data.playlists.items;
+
+                playlists.forEach(artist => {
+                    const artistElement = document.createElement('div');
+                    artistElement.classList.add('artist');
+
+                    const hrefname = document.createElement('a');
+                    hrefname.href = `/blindtest?type=playlist&id=${artist.id}&name="${artist.name}"`;
+
+                    const artistName = document.createElement('p');
+                    artistName.classList.add('artist-name'); // Ajoutez cette classe si nécessaire
+                    artistName.innerText = artist.name;
+
+                    const artistImage = document.createElement('div');
+                    artistImage.classList.add('artist-image');
+                    // Vérifier si la piste a des images
+                    if (artist.images.length > 0) {
+                        const artistImageTag = document.createElement('img');
+                        artistImageTag.src = artist.images[0].url;
+                        artistImageTag.alt = artist.name;
+                        artistImage.appendChild(artistImageTag);
+                    }
+
+                    else {
+                        const artistImageTag = document.createElement('img');
+                        artistImageTag.src = "../images/user-defaut-pp.jpg";
+                        artistImageTag.alt = artist.name;
+                        artistImage.appendChild(artistImageTag);
+                    }
+
+                    artistElement.appendChild(hrefname);
+                    hrefname.appendChild(artistImage);
+                    hrefname.appendChild(artistName);
+
+
+                    playlistsContainer.appendChild(artistElement);
+                });
+
+                const artists = data.artists.items;
+
+                artists.forEach(artist => {
+                    const artistElement = document.createElement('div');
+                    artistElement.classList.add('artist');
+
+                    const hrefname = document.createElement('a');
+                    hrefname.href = `/blindtest?type=artist&id=${artist.id}&name="${artist.name}"`;
+
+                    const artistName = document.createElement('p');
+                    artistName.classList.add('artist-name'); // Ajoutez cette classe si nécessaire
+                    artistName.innerText = artist.name;
+
+                    const artistImage = document.createElement('div');
+                    artistImage.classList.add('artist-image');
+                    // Vérifier si la piste a des images
+                    if (artist.images.length > 0) {
+                        const artistImageTag = document.createElement('img');
+                        artistImageTag.src = artist.images[0].url;
+                        artistImageTag.alt = artist.name;
+                        artistImage.appendChild(artistImageTag);
+                    }
+
+                    else {
+                        const artistImageTag = document.createElement('img');
+                        artistImageTag.src = "../images/user-defaut-pp.jpg";
+                        artistImageTag.alt = artist.name;
+                        artistImage.appendChild(artistImageTag);
+                    }
+
+                    artistElement.appendChild(hrefname);
+                    hrefname.appendChild(artistImage);
+                    hrefname.appendChild(artistName);
+
+
+                    artistsContainer.appendChild(artistElement);
+                });
+
+                const albums = data.albums.items;
+
+                albums.forEach(album => {
+                    const albumElement = document.createElement('div');
+                    albumElement.classList.add('artist');
+
+                    const hrefname = document.createElement('a');
+                    hrefname.href = `/blindtest?type=album&id=${album.id}&name="${album.name}"`;
+
+                    const albumName = document.createElement('p');
+                    albumName.classList.add('artist-name'); // Ajoutez cette classe si nécessaire
+                    albumName.innerText = album.name;
+
+                    const albumImage = document.createElement('div');
+                    albumImage.classList.add('artist-image');
+                    // Vérifier si la piste a des images
+                    if (album.images.length > 0) {
+                        const albumImageTag = document.createElement('img');
+                        albumImageTag.src = album.images[0].url;
+                        albumImageTag.alt = album.name;
+                        albumImage.appendChild(albumImageTag);
+                    }
+
+                    else {
+                        const albumImageTag = document.createElement('img');
+                        albumImageTag.src = "../images/user-defaut-pp.jpg";
+                        albumImageTag.alt = album.name;
+                        albumImage.appendChild(albumImageTag);
+                    }
+
+                    albumElement.appendChild(hrefname);
+                    hrefname.appendChild(albumImage);
+                    hrefname.appendChild(albumName);
+
+
+                    albumsContainer.appendChild(albumElement);
+                });
+            }
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+
+</body>
+
+</html>

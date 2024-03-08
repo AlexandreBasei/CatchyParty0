@@ -1,0 +1,80 @@
+@media only screen and (max-width: 600px) {
+
+
+    /* elements */
+
+    select{
+        width: 30vh;
+        background-color: #FF570A;
+        border: 0;
+        color: white;
+        margin: 10px 0;
+        padding: 5px;
+        border-radius: 10px;
+    }
+
+    label{
+        margin-bottom: 10px;
+    }
+
+    /* main */
+
+    main{
+        flex-wrap: wrap;
+        height: 75vh;
+        text-align: center;
+        padding: 20px 15px;
+    }
+
+    main section{
+        width: 50%;
+    }
+
+    .personalization{
+        margin-top: 15px;
+        padding-top: 0;
+    }
+
+    .personalization-main{
+        height: 50vh;
+    }
+
+    .personalization form{
+        display: block;
+    }
+
+    .tutorial{
+        width: 40vh;
+    }
+
+    .settings{
+        width: 100%;
+    }
+
+    .submitBtn{
+        margin-top: 5vh;
+    }
+
+    .playersList p{
+        font-size: 0.8em;
+    }
+
+    .playersContainer{
+        display: flex;
+    }
+
+    .playerContainer{
+        flex: 25%;
+        display: grid;
+    }
+
+    .playerContainer img{
+        margin: auto;
+    }
+
+    .playerContainer p{
+        text-align: center;
+        margin-top: 5px;
+    }
+    
+  }

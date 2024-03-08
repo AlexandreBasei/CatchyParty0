@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CatchyParty</title>
+    <link href="../../style/main.css" rel="stylesheet" />
+    <link href="../../style/mobile.css" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <a href="./homepage.html">
+            <img alt="logo" src="../../assets/logo.svg">
+        </a>
+        <!-- <div>
+            (langue ?)
+        </div> -->
+    </header>
+    <main>
+        <section class="personalization">
+            <form>
+                <input type="text" class="textInput" placeholder="Votre pseudo" id="pseudoInput" maxlength="10">
+                <div>
+                    <h3>Votre avatar</h3>
+                    <div class="avatar-container">
+                        <div class="avatar-selected">
+                            <!-- Avatar sélectionné apparaîtra ici -->
+                        </div>
+                    </div>
+                    <div class="avatar-options">
+                        <img class="avatar-option" src="../../assets/Comparaison.png" alt="Avatar 1" onclick="selectAvatar(this)">
+                        <img class="avatar-option" src="../../assets/Realping.png" alt="Avatar 2" onclick="selectAvatar(this)">
+                        <img class="avatar-option" src="../../assets/security.png" alt="Avatar 3" onclick="selectAvatar(this)">
+                    </div>
+                </div>
+                <input type="submit" class="submitBtn" value="Jouer !" id="submitBtn">
+            </form>
+        </section>
+        <section class="tutorial">
+            <h2>
+                Comment jouer ?
+            </h2>
+            <div id="tutorial" class="tutorial-box"></div>
+        </section>
+    </main>
+    <footer>
+        <div class="footerLinks">
+            <a href="../../pages/footerPages/about.html">
+                <p>À propos</p>
+            </a>
+            <a href="../../pages/footerPages/CGU.html">
+                <p>CGU</p>
+            </a>
+            <a href="../../pages/footerPages/contact.html">
+                <p>Contact</p>
+            </a>
+        </div>
+    </footer>
+    <script src="../../js/homepage.js"></script>
+</body>
+</html>
