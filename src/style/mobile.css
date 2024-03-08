@@ -5,7 +5,7 @@
 
     select{
         width: 30vh;
-        background-color: #FF570A;
+        background-color: #F4D35E;
         border: 0;
         color: white;
         margin: 10px 0;
@@ -32,6 +32,10 @@
         width: 50%;
     }
 
+    .content{
+        display: block;
+    }
+
     .personalization{
         margin-top: 15px;
         padding-top: 0;
@@ -39,6 +43,7 @@
 
     .personalization-main{
         height: 50vh;
+        margin: 5%;
     }
 
     .personalization form{
@@ -56,6 +61,11 @@
     .submitBtn{
         margin-top: 5vh;
     }
+
+    .playersList{
+        margin: 5%;
+    }
+    
 
     .playersList p{
         font-size: 0.8em;

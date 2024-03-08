@@ -3,14 +3,14 @@
 body{
     background-color: #2E2E3A;
     color: white;
-    /* font-family: 'Montserrat', sans-serif; */
+    font-family: 'Montserrat', sans-serif;
 }
 
 /* elements */
 
 input[type=submit]{
     border-radius: 20px;
-    background-color: #FF570A;
+    background-color: #F4D35E;
     border: 0;
     color: white;
     padding: 5px 15px;
@@ -19,7 +19,7 @@ input[type=submit]{
 }
 
 input[type=text]{
-    background-color: #FF570A;
+    background-color: #F4D35E;
     border: 0;
     color: white;
     padding: 8px;
@@ -33,13 +33,17 @@ input::placeholder {
 
   select{
     width: 30vh;
-    background-color: #FF570A;
+    background-color: #F4D35E;
     border: 0;
     color: white;
     margin: 10px 0;
     padding: 5px;
     border-radius: 10px;
 }
+
+    form{
+        text-align: center;
+    }
 
 /* header */
 
@@ -59,7 +63,7 @@ main{
     justify-content: center;
     height: 60vh;
     gap: 20%;
-    background-color: #6320EE;
+    background-color: #19647E;
     border-radius: 20px;
     margin: 5% 10%;
     padding: 20px;
@@ -69,11 +73,20 @@ main section{
     width: 25%;
 }
 
+.content{
+    display: flex;
+}
+
 .personalization{
     justify-content: center;
     display: flex;
     padding-top: 35px;
     text-align: center;
+}
+
+.personalization-main{
+    margin: 2% 5% 0 0%;
+    width: 80%;
 }
 
 .tutorial{
@@ -85,7 +98,7 @@ main section{
 }
 
 .tutorial-box {
-    background-color: #8075FF;
+    background-color: #28AFB0;
     padding: 20px;
     margin: 20px auto;
     border-radius: 20px;
@@ -97,20 +110,20 @@ main section{
 }
 .game {
     flex: 30%;
-    background-color: #8075FF;
+    background-color: #28AFB0;
     padding: 10px;
     margin: 5px;
     border-radius: 15px;
     cursor: pointer;
 }
 .selected {
-    background-color: #FF570A;
+    background-color: #F4D35E;
 }
 
 .playersList{
-    background-color: #6320EE;
+    background-color: #19647E;
     border-radius: 20px;
-    margin: 5%;
+    margin: 2% 5% 0 5%;
     padding: 20px;
 }
 
@@ -152,12 +165,30 @@ main section{
     text-align: center;
 }
 
+.container{
+    margin: 0 5%;
+}
+
+.CGU-main{
+    overflow: auto;
+    display: grid;
+    gap: 20px;
+}
+
+.CGU-main section{
+    width: 100%;
+}
+
+.about-main{
+    gap: 10%;
+}
+
 /* footer */
 
 footer{
     position: fixed;
     left: 0;
-    bottom: 0;
+    bottom: 20px;
     width: 100%;
 }
 
@@ -174,6 +205,18 @@ footer p{
 .footerLinks a{
     flex: 0 0 33%;
     text-decoration: none;
+}
+
+.footerText{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%; 
+    text-align: center;
+}
+
+.footerText p{
+    font-size: 0.7em;
 }
 
 
@@ -213,4 +256,8 @@ footer p{
 .avatar-selected img {
     width: 100%;
     height: auto;
+}
+
+.email-icon{
+    cursor: pointer;
 }
