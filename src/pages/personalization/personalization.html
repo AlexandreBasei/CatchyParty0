@@ -16,41 +16,43 @@
             (langue ?)
         </div> -->
     </header>
-    <section class="playersList">
-        <h3>Joueurs</h3>
-        <div class="playersContainer">
-            <div class="playerContainer">
-                <img class="player-icon" id="avatarImg" alt="player 1">
-                <p id="pseudoPlayer1"></p>
-            </div>
-        </div>
-    </section>
-    <main class="personalization-main">
-        <section class="settings">
-            <form>
-                <label for="nbPlayers">Nombre de joueurs</label>
-                <select id="nbPlayers">
-                    
-                </select>
-            <br>
-                <label for="nbRounds">Nombre de manches</label>
-                <select id="nbRounds">
-                    
-                </select>
-            <br>
-                <h3>Choix des jeux</h3>
-
-                <div class="game-options">
-                    <div class="game" onclick="toggleSelection(this)">Jeu 1</div>
-                    <div class="game" onclick="toggleSelection(this)">Jeu 2</div>
-                    <div class="game" onclick="toggleSelection(this)">Jeu 3</div>
-                    <div class="game" onclick="toggleSelection(this)">Jeu 4</div>
+    <div class="content">
+        <section class="playersList">
+            <h3>Joueurs</h3>
+            <div class="playersContainer">
+                <div class="playerContainer">
+                    <img class="player-icon" id="avatarImg" alt="player 1">
+                    <p id="pseudoPlayer1"></p>
                 </div>
-            <br>
-                <input type="submit" value="C'est parti" class="submitBtn">
-            </form>
+            </div>
         </section>
-    </main>
+        <main class="personalization-main">
+            <section class="settings">
+                <form>
+                    <label for="nbPlayers">Nombre de joueurs</label>
+                    <select id="nbPlayers">
+                        
+                    </select>
+                <br>
+                    <label for="nbRounds">Nombre de manches</label>
+                    <select id="nbRounds">
+                        
+                    </select>
+                <br>
+                    <h3>Choix des jeux</h3>
+
+                    <div class="game-options">
+                        <div class="game" onclick="toggleSelection(this)">Jeu 1</div>
+                        <div class="game" onclick="toggleSelection(this)">Jeu 2</div>
+                        <div class="game" onclick="toggleSelection(this)">Jeu 3</div>
+                        <div class="game" onclick="toggleSelection(this)">Jeu 4</div>
+                    </div>
+                <br>
+                    <input type="submit" value="C'est parti" class="submitBtn">
+                </form>
+            </section>
+        </main>
+    </div>
     <footer>
         <div class="footerLinks">
             <a href="../../pages/footerPages/about.html">
@@ -64,6 +66,7 @@
             </a>
         </div>
     </footer>
+    <div class="footerText"><p>&copy; 2024 The Socket Team. Tous droits réservés.</p></div>
     <script src="../../js/personalization.js"></script>
 </body>
 </html>
