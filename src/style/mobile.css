@@ -24,6 +24,8 @@
         height: 75vh;
         text-align: center;
         padding: 20px 15px;
+        margin: 5%;
+        gap: 5%;
     }
 
     main section{
