@@ -58,10 +58,10 @@ main{
     display: flex;
     justify-content: center;
     height: 60vh;
-    gap: 5%;
+    gap: 20%;
     background-color: #6320EE;
     border-radius: 20px;
-    margin: 5%;
+    margin: 5% 10%;
     padding: 20px;
 }
 
@@ -73,6 +73,7 @@ main section{
     justify-content: center;
     display: flex;
     padding-top: 35px;
+    text-align: center;
 }
 
 .tutorial{
