@@ -37,6 +37,8 @@ input::placeholder {
     border: 0;
     color: white;
     margin: 10px 0;
+    padding: 5px;
+    border-radius: 10px;
 }
 
 /* header */
