@@ -8,21 +8,28 @@
         console.log(document.location.href);
     });
    
-   var steps = [
+    var steps = [
         "Étape 1 : Faites ceci...",
-        "Étape 2 : Maintenant, faites cela..."
+        "Étape 2 : Maintenant, faites cela...",
+        "Étape 3 : Puis cela..."
     ];
-
+    
     var currentStep = 0;
     var tutorialElement = document.getElementById("tutorial");
-
+    
     tutorialElement.innerHTML = steps[currentStep];
-
+    
     function nextStep() {
         currentStep++;
         if (currentStep < steps.length) {
             tutorialElement.innerHTML = steps[currentStep];
             setTimeout(nextStep, 5000);
+        } else {
+            setTimeout(function() {
+                currentStep = 0;
+                tutorialElement.innerHTML = steps[currentStep];
+                setTimeout(nextStep, 5000);
+            }, 5000);
         }
     }
 
@@ -39,4 +46,4 @@
         options.style.display = 'none';
     }
 
-    setTimeout(nextStep, 5000);
+    nextStep();
