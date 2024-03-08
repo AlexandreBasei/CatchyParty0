@@ -1,41 +1,54 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat');
 
+:root{
+    --primary: #28AFB0;
+    --secondary: #FF570A;
+    --tertiary: #19647E;
+    --quaternary: #F4D35E;
+    --quinary: #14121A;
+
+    --black: #14080E;
+    --white: #FFFFFF;
+}
+
 body{
-    background-color: #2E2E3A;
-    color: white;
+    color: var(--white);
     font-family: 'Montserrat', sans-serif;
+    background: url('../assets/svg/motif1.svg'), var(--black);
+    background-size: 100px 100px;
+    background-repeat: repeat;
 }
 
 /* elements */
 
 input[type=submit]{
     border-radius: 20px;
-    background-color: #F4D35E;
+    background-color: var(--secondary);
     border: 0;
-    color: white;
+    color: var(--white);
     padding: 5px 15px;
     width: 100px;
     font-size: 1em;
 }
 
 input[type=text]{
-    background-color: #F4D35E;
+    background-color: var(--secondary);
     border: 0;
-    color: white;
+    color: var(--white);
     padding: 8px;
     border-radius: 5px;
 }
 
 input::placeholder {
-    color: white;
+    color: var(--white);
     font-size: 1em;
   }
 
   select{
     width: 30vh;
-    background-color: #F4D35E;
+    background-color: var(--secondary);
     border: 0;
-    color: white;
+    color: var(--white);
     margin: 10px 0;
     padding: 5px;
     border-radius: 10px;
@@ -63,7 +76,7 @@ main{
     justify-content: center;
     height: 60vh;
     gap: 20%;
-    background-color: #19647E;
+    background-color: var(--primary);
     border-radius: 20px;
     margin: 5% 10%;
     padding: 20px;
@@ -98,7 +111,7 @@ main section{
 }
 
 .tutorial-box {
-    background-color: #28AFB0;
+    background-color: var(--tertiary);
     padding: 20px;
     margin: 20px auto;
     border-radius: 20px;
@@ -110,18 +123,18 @@ main section{
 }
 .game {
     flex: 30%;
-    background-color: #28AFB0;
+    background-color: var(--tertiary);
     padding: 10px;
     margin: 5px;
     border-radius: 15px;
     cursor: pointer;
 }
 .selected {
-    background-color: #F4D35E;
+    background-color: var(--secondary);
 }
 
 .playersList{
-    background-color: #19647E;
+    background-color: var(--primary);
     border-radius: 20px;
     margin: 2% 5% 0 5%;
     padding: 20px;
@@ -193,7 +206,7 @@ footer{
 }
 
 footer p{
-    color: white;
+    color: var(--white);
 }
 
 .footerLinks{
@@ -226,7 +239,7 @@ footer p{
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background-color: black;
+    background-color: var(--black);
     margin: 0 auto 30px auto;
     cursor: pointer;
 }
